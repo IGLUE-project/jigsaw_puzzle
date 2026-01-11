@@ -94,7 +94,6 @@ export default function PuzzleBoard({
 
     return (
         <div className="puzzle-board">
-            {!hasImages && <h3>{I18n.getTrans("i.board")}</h3>}
             <div
                 className="board-area"
                 ref={boardWrapperRef}

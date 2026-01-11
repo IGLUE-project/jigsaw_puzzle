@@ -1,14 +1,11 @@
 export let LOCALES = {
   en: {
-    "i.pieces": "Pieces (Click for rotate)",
-    "i.board": "Board",
+    "i.pieces": "Pieces (Click to flip)",
   },
   es: {
-    "i.pieces": "Piezas (Click para girar)",
-    "i.board": "Tablero",
+    "i.pieces": "Piezas (Clic para voltear)",
   },
   sr: {
-    "i.pieces": "Pieces (Click for rotate)",
-    "i.board": "Board",
+    "i.pieces": "Delovi slagalice (Kliknite da okrenete)",
   },
 };
