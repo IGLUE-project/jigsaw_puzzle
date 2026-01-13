@@ -20,7 +20,7 @@ export const THEMES = {
 export const THEME_ASSETS = {
   [THEMES.RETRO]: {},
   [THEMES.BASIC]: {
-    backgroundImg: "/images/basic_background.jpg",
+    backgroundImg: "/images/basic_background.png",
     frameImg: "/images/basic_frame.png",
     framePaddingTop: 25,
     framePaddingBottom: 23,
