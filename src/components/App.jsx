@@ -132,11 +132,13 @@ export default function App() {
   }
 
   function checkResult(_solution) {
+    const escappSettings = escapp.getSettings();
+    if ((!escappSettings.linkedPuzzleIds || escappSettings.linkedPuzzleIds.length === 0)) return;
     escapp.checkNextPuzzle(_solution, {}, (success, erState) => {
-      Utils.log("Check solution Escapp response", success, erState);
+      Utils.log("Check solution Escapp response", _solution, success, erState);
       if (success) {
         try {
-          setResult({ success: true, message: erState.msg });
+          setResult({ success: true });
           setTimeout(() => {
             submitPuzzleSolution(_solution);
           }, appSettings.delayNumber);
@@ -144,13 +146,12 @@ export default function App() {
           Utils.log("Error in checkNextPuzzle", e);
         }
       } else {
-        setResult({ success: false, message: erState.msg });
+        setResult({ success: false });
       }
     });
   }
   function submitPuzzleSolution(_solution) {
     Utils.log("Submit puzzle solution", _solution);
-
     escapp.submitNextPuzzle(_solution, {}, (success, erState) => {
       Utils.log("Solution submitted to Escapp", _solution, success, erState);
     });

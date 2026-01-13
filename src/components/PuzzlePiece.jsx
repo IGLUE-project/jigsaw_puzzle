@@ -10,7 +10,7 @@ export default function PuzzlePiece({ piece, config, rows, cols, onDragStart, on
             };
         }
 
-        const imgUrl = piece.currentSide === 1 ? config.image1 : config.image2;
+        const imgUrl = piece.currentSide === 1 ? config.imageSol : config.imageSolReverse;
         const row = Math.floor(piece.correctPosition / cols);
         const col = piece.correctPosition % cols;
 
