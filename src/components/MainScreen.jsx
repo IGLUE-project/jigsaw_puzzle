@@ -151,7 +151,7 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
       const allCorrectPositions = orderedPieces.every((p, index) => p.correctPosition === index);
 
       if (allSameSide && allCorrectPositions) {
-        let imgUrl = (firstSide === 1 ? config.imageSol : config.imageSolReverse);
+        let imgUrl = (firstSide === 1 ? config.imageSolSolution : config.imageSolReverse);
         sendSolution(imgUrl);
       }
     }

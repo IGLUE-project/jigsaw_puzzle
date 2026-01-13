@@ -120,8 +120,10 @@ export default function App() {
       _appSettings.backgroundSize = "100% 100%";
     }
 
+    let imageSolSolution = _appSettings.imageSol;
     //Change HTTP protocol to HTTPs in URLs if necessary
     _appSettings = Utils.checkUrlProtocols(_appSettings);
+    _appSettings.imageSolSolution = imageSolSolution;
 
     //Preload resources (if necessary)
     Utils.preloadImages([_appSettings.backgroundMessage]);
