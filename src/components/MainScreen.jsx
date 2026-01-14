@@ -98,7 +98,7 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
   const [gridState, setGridState] = useState([]);
   const [rows, setRows] = useState(3);
   const [cols, setCols] = useState(3);
-  const [slicedImages, setSlicedImages] = useState({ side1: [], side2: [] });
+  const [slicedImages, setSlicedImages] = useState({ side1: [], side2: [], distractorSide1: [], distractorSide2: [] });
   const maxZIndex = useRef(100);
 
   const isLocked = result && result.success === true;
@@ -119,15 +119,12 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
 
     // Slice images
     Promise.all([
-      typeof config.imageSol === "string"
-        ? sliceImage(config.imageSol, r, c)
-        : Promise.resolve(null),
-
-      typeof config.imageSolReverse === "string"
-        ? sliceImage(config.imageSolReverse, r, c)
-        : Promise.resolve(null)
-    ]).then(([side1, side2]) => {
-      setSlicedImages({ side1, side2 });
+      typeof config.imageSol === "string" ? sliceImage(config.imageSol, r, c) : Promise.resolve(null),
+      typeof config.imageSolReverse === "string" ? sliceImage(config.imageSolReverse, r, c) : Promise.resolve(null),
+      typeof config.imageDistractor === "string" ? sliceImage(config.imageDistractor, r, c) : Promise.resolve(null),
+      typeof config.imageDistractorReverse === "string" ? sliceImage(config.imageDistractorReverse, r, c) : Promise.resolve(null),
+    ]).then(([side1, side2, distractorSide1, distractorSide2]) => {
+      setSlicedImages({ side1, side2, distractorSide1, distractorSide2 });
       initializePuzzle(r, c, config);
     });
 
@@ -148,7 +145,7 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
 
       const firstSide = orderedPieces[0].currentSide;
       const allSameSide = orderedPieces.every((p) => p.currentSide === firstSide);
-      const allCorrectPositions = orderedPieces.every((p, index) => p.correctPosition === index);
+      const allCorrectPositions = orderedPieces.every((p, index) => p.correctPosition === index && !p.isDistractor);
 
       if (allSameSide && allCorrectPositions) {
         let imgUrl = (firstSide === 1 ? config.imageSolSolution : config.imageSolReverse);
@@ -162,9 +159,11 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
   const initializePuzzle = (r, c, config) => {
     let imageSolExists = (typeof config.imageSol === "string");
     let imageSolReverseExists = (typeof config.imageSolReverse === "string");
+    let imageDistractorExists = (typeof config.imageDistractor === "string");
+    let imageDistractorReverseExists = (typeof config.imageDistractorReverse === "string");
 
     let totalPieces = r * c;
-    if(!imageSolExists){
+    if (!imageSolExists) {
       totalPieces = 0;
     }
 
@@ -179,7 +178,24 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
         currentSide: imageSolReverseExists ? (Math.random() < 0.5 ? 1 : 2) : 1,
         isPlaced: false,
         zIndex: 1,
+        isDistractor: false,
       });
+    }
+
+    if (imageDistractorExists) {
+      let distractorPiecesCount = r * c;
+      let startId = newPieces.length;
+      for (let i = 0; i < distractorPiecesCount; i++) {
+        newPieces.push({
+          id: startId + i,
+          correctPosition: i,
+          twoSides: imageDistractorReverseExists,
+          currentSide: imageDistractorReverseExists ? (Math.random() < 0.5 ? 1 : 2) : 1,
+          isPlaced: false,
+          zIndex: 1,
+          isDistractor: true,
+        });
+      }
     }
 
     // Shuffle
@@ -297,7 +313,7 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
   const togglePieceSide = (pieceId) => {
     if (isLocked) return;
     const piece = pieces.find(p => p.id === pieceId);
-    if(piece.twoSides !== true) return;
+    if (piece.twoSides !== true) return;
 
     setPieces((prev) =>
       prev.map((p) =>

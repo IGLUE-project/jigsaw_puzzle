@@ -139,9 +139,15 @@ export default function PuzzleBoard({
                                             isLocked={isLocked}
                                             tileUrl={
                                                 slicedImages
-                                                    ? (piece.currentSide === 1
-                                                        ? (slicedImages.side1 ? slicedImages.side1[piece.correctPosition] : null)
-                                                        : (slicedImages.side2 ? slicedImages.side2[piece.correctPosition] : null)
+                                                    ? (piece.isDistractor
+                                                        ? (piece.currentSide === 1
+                                                            ? (slicedImages.distractorSide1 ? slicedImages.distractorSide1[piece.correctPosition] : null)
+                                                            : (slicedImages.distractorSide2 ? slicedImages.distractorSide2[piece.correctPosition] : null)
+                                                        )
+                                                        : (piece.currentSide === 1
+                                                            ? (slicedImages.side1 ? slicedImages.side1[piece.correctPosition] : null)
+                                                            : (slicedImages.side2 ? slicedImages.side2[piece.correctPosition] : null)
+                                                        )
                                                     )
                                                     : null
                                             }
