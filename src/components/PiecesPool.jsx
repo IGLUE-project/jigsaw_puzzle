@@ -11,15 +11,15 @@ export default function PiecesPool({
     onPieceClick,
     onPieceHover,
     slicedImages,
+    onCheckSolution,
+    checkStatus,
     I18n,
     isLocked,
 }) {
     const visiblePieces = pieces.filter((p) => !p.isPlaced);
 
     return (
-        <div
-            className="pieces-pool"
-        >
+        <div className="pieces-pool">
             <h3>{I18n.getTrans("i.pieces")}</h3>
             <div
                 className="pieces-list"
@@ -60,6 +60,13 @@ export default function PiecesPool({
                     />
                 ))}
             </div>
+            <button
+                className={`check-btn ${checkStatus === "error" ? "error" : ""}`}
+                onClick={onCheckSolution}
+                disabled={isLocked || checkStatus === "checking"}
+            >
+                {I18n.getTrans("i.check")}
+            </button>
         </div>
     );
 }

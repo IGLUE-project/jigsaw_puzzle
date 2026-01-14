@@ -14,6 +14,7 @@ export const DEFAULT_APP_SETTINGS = {
   cols: 4,
   delay: 2000,
   winAudio: "sounds/win.wav",
+  failAudio: "sounds/shuffle.wav",
 };
 
 export const ESCAPP_CLIENT_SETTINGS = {

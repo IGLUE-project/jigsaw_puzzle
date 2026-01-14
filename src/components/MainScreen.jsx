@@ -94,11 +94,13 @@ const sliceImage = (src, r, c) => {
 export default function MainScreen({ config, sendSolution, result, setLoading }) {
   const { I18n } = useContext(GlobalContext);
   const winSound = useSound(config.winAudio);
+  const failSound = useSound(config.failAudio);
   const [pieces, setPieces] = useState([]);
   const [gridState, setGridState] = useState([]);
   const [rows, setRows] = useState(3);
   const [cols, setCols] = useState(3);
   const [slicedImages, setSlicedImages] = useState({ side1: [], side2: [], distractorSide1: [], distractorSide2: [] });
+  const [checkStatus, setCheckStatus] = useState("idle"); // idle, checking, error
   const maxZIndex = useRef(100);
 
   const isLocked = result && result.success === true;
@@ -131,28 +133,55 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
   }, [config]);
 
   useEffect(() => {
-    if (result && result.success === true) {
-      winSound.play();
+    if (result) {
+      if (result.success === true) {
+        winSound.play();
+      } else if (result.success === false) {
+        failSound.play();
+        setCheckStatus("error");
+        setTimeout(() => {
+          setCheckStatus("idle");
+        }, 1000);
+      }
     }
   }, [result]);
 
-  // Check Solution
-  useEffect(() => {
-    if (gridState.length > 0 && gridState.every((cell) => cell !== null)) {
-      const orderedPieces = gridState.map((pieceId) =>
-        pieces.find((p) => p.id === pieceId)
-      );
+  const handleCheckSolution = () => {
+    if (checkStatus === "checking") return;
 
-      const firstSide = orderedPieces[0].currentSide;
-      const allSameSide = orderedPieces.every((p) => p.currentSide === firstSide);
-      const allCorrectPositions = orderedPieces.every((p, index) => p.correctPosition === index && !p.isDistractor);
+    setCheckStatus("checking");
 
-      if (allSameSide && allCorrectPositions) {
-        let imgUrl = (firstSide === 1 ? config.imageSolSolution : config.imageSolReverse);
-        sendSolution(imgUrl);
+    // Simulate server delay/processing time
+    setTimeout(() => {
+      let success = false;
+      let imgUrl = null;
+
+      if (gridState.length > 0 && gridState.every((cell) => cell !== null)) {
+        const orderedPieces = gridState.map((pieceId) =>
+          pieces.find((p) => p.id === pieceId)
+        );
+
+        const firstSide = orderedPieces[0].currentSide;
+        const allSameSide = orderedPieces.every((p) => p.currentSide === firstSide);
+        const allCorrectPositions = orderedPieces.every((p, index) => p.correctPosition === index && !p.isDistractor);
+
+        if (allSameSide && allCorrectPositions) {
+          success = true;
+          imgUrl = (firstSide === 1 ? config.imageSolSolution : config.imageSolReverse);
+        }
       }
-    }
-  }, [gridState, pieces]);
+
+      if (success && imgUrl) {
+        sendSolution(imgUrl);
+      } else {
+        failSound.play();
+        setCheckStatus("error");
+        setTimeout(() => {
+          setCheckStatus("idle");
+        }, 1000);
+      }
+    }, 1000);
+  };
 
   // --- Logic helpers ---
 
@@ -211,6 +240,8 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
     if (setLoading) setLoading(false);
   };
 
+  // --- Event Handlers ---
+
   const handlePieceHover = (pieceId) => {
     if (isLocked) return;
 
@@ -221,8 +252,6 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
       return prev.map(p => p.id === pieceId ? { ...p, zIndex: maxZIndex.current } : p);
     });
   };
-
-  // --- Event Handlers ---
 
   const handleDragStart = (e, pieceId) => {
     if (isLocked) return;
@@ -289,9 +318,12 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
     let relativeX = (e.clientX - poolRect.left - offsetX) / poolRect.width;
     let relativeY = (e.clientY - poolRect.top - offsetY) / poolRect.height;
 
-    // Clamp values to ensure it stays somewhat visible (0 to 1) 
+    const approximatePieceHeight = 135;
+    const margin = 20;
+    const safeMaxY = Math.max(0, 1 - ((approximatePieceHeight + margin) / poolRect.height));
+
     relativeX = Math.max(0, Math.min(1, relativeX));
-    relativeY = Math.max(0, Math.min(1, relativeY));
+    relativeY = Math.max(0, Math.min(safeMaxY, relativeY));
 
     const oldIndex = gridState.indexOf(pieceId);
     if (oldIndex !== -1) {
@@ -338,6 +370,8 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
         onPieceClick={togglePieceSide}
         onPieceHover={handlePieceHover}
         slicedImages={slicedImages}
+        onCheckSolution={handleCheckSolution}
+        checkStatus={checkStatus}
         I18n={I18n}
         isLocked={isLocked}
       />
