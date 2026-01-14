@@ -1,5 +1,6 @@
 export const DEFAULT_APP_SETTINGS = {
   skin: "STANDARD",
+  message: undefined,
   backgroundImg: undefined,
   frameImg: undefined,
   imageSol: undefined,

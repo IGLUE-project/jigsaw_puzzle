@@ -5,6 +5,14 @@ import PiecesPool from "./PiecesPool";
 import PuzzleBoard from "./PuzzleBoard";
 import useSound from "../hooks/useSound";
 import { THEMES } from "../constants/constants";
+import MessageScreen from "./MessageScreen";
+
+const showVictoryScreen = {
+  opacity: 1,
+  visibility: "visible",
+  zIndex: 2000000000,
+  transform: "scale(1)",
+}
 
 // Helper to generate ordered positions for pieces in the pool
 const assignInitialPositions = (pieces) => {
@@ -91,7 +99,7 @@ const sliceImage = (src, r, c) => {
   });
 };
 
-export default function MainScreen({ config, sendSolution, result, setLoading }) {
+export default function MainScreen({ config, checkSolution, sendSolution, result, setLoading, showMessage }) {
   const { I18n } = useContext(GlobalContext);
   const winSound = useSound(config.winAudio);
   const failSound = useSound(config.failAudio);
@@ -172,7 +180,7 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
       }
 
       if (success && imgUrl) {
-        sendSolution(imgUrl);
+        checkSolution(imgUrl);
       } else {
         failSound.play();
         setCheckStatus("error");
@@ -391,6 +399,9 @@ export default function MainScreen({ config, sendSolution, result, setLoading })
           isLocked={isLocked}
           hasImages={hasImages}
         />
+      </div>
+      <div className="victory" style={showMessage ? showVictoryScreen : {}}>
+        <MessageScreen sendSolution={() => sendSolution(result.solution)} />
       </div>
     </div>
   );

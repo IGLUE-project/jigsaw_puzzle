@@ -12,7 +12,8 @@ export default function App() {
 
   const [loading, setLoading] = useState(true);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [result, setResult] = useState({ success: undefined, message: undefined });
+  const [showMessage, setShowMessage] = useState(false);
+  const [result, setResult] = useState({ success: undefined, solution: undefined });
 
   useEffect(() => {
     //Init Escapp client
@@ -93,6 +94,9 @@ export default function App() {
     //Init internacionalization module
     I18n.init(_appSettings);
 
+    if (typeof _appSettings.message !== "string") {
+      _appSettings.message = I18n.getTrans("i.message");
+    }
     if (typeof _appSettings.delay === "number") {
       _appSettings.delayNumber = _appSettings.delay;
     } else {
@@ -139,13 +143,17 @@ export default function App() {
     escapp.checkNextPuzzle(_solution, {}, (success, erState) => {
       Utils.log("Check solution Escapp response", _solution, success, erState);
       if (success) {
-        try {
-          setResult({ success: true });
-          setTimeout(() => {
-            submitPuzzleSolution(_solution);
-          }, appSettings.delayNumber);
-        } catch (e) {
-          Utils.log("Error in checkNextPuzzle", e);
+        setResult({ success: true, solution: _solution });
+        if (appSettings.actionAfterSolve === "SHOW_MESSAGE") {
+          setShowMessage(true);
+        } else {
+          try {
+            setTimeout(() => {
+              submitPuzzleSolution(_solution);
+            }, 2000);
+          } catch (e) {
+            Utils.log("Error in checkNextPuzzle", e);
+          }
         }
       } else {
         setResult({ success: false });
@@ -166,7 +174,7 @@ export default function App() {
         }`}
     >
       <div className={`main-background ${result && result.success === true ? "solved" : ""}`} style={{ opacity: loading ? 0 : 1, backgroundImage: appSettings?.backgroundImg && !loading ? `url(${appSettings.backgroundImg})` : "" }}>
-        {!initialLoading && <MainScreen setLoading={setLoading} config={appSettings} sendSolution={checkResult} result={result} />}
+        {!initialLoading && <MainScreen setLoading={setLoading} checkSolution={checkResult} showMessage={showMessage} config={appSettings} sendSolution={submitPuzzleSolution} result={result} />}
       </div>
     </div>
   );
