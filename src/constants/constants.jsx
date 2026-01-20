@@ -25,8 +25,8 @@ export const THEME_ASSETS = {
   [THEMES.STANDARD]: {
   },
   [THEMES.FRAMED]: {
-    backgroundImg: "/images/framed_background.png",
-    frameImg: "/images/framed_frame.png",
+    backgroundImg: "images/framed_background.png",
+    frameImg: "images/framed_frame.png",
     framePaddingTop: 25,
     framePaddingBottom: 23,
     framePaddingLeft: 25,
